@@ -1,21 +1,36 @@
+% This program generates a sequence of runnable Wireless Insite simulation 
+% directories with a given SUMO traffic pattern.
+% Prerequisite:
+%     1. A "base" Wireless Insite simulation directories with fixed 3D models
+%        (e.g. buildings, ground) and transmitters/receivers all properly 
+%        configered.
+%     2. A SUMO-generated traffic pattern. Save vehicle locations and types
+%        at each timestamp to one .mat file and put all files of one traffic
+%        pattern to one directory.
+%     3. A set of vehicle models in the format of Wireless Insite 3D files (.object). 
+%        The vehicle types should be consistent with the types in SUMO. 
+%        Save the 3D models to one directory.
+%
+%
+
 clear;clc;
 close all;
 
 %% Config SUMO file folders
-sumo_folder = '../sumo/';
-sim_num = 1000;
+sumo_folder = '../sumo/';   % This is where you store the SUMO .mat files
+sim_num = 1000;             % Manually set simulation steps
 veh_z_offset = -3;
 veh_x_offset = 0;
 rx_z_offset = [2.3; 3.4; 3.4];
-object_angle_offset = 0;
+object_angle_offset = 0;    % Manually adjust the vehicle and Rx offset
 
 setup_fn = 'empty_city';
 
 % Old file
 % old_dir = 'wi_setup/';
-old_dir = '../ucsd_campus_large_scale_base/';
+old_dir = '../ucsd_campus_large_scale_base/';   % This is where the "base" directory located
 old_fn = strcat(old_dir, setup_fn);
-old_setup_fn = strcat(old_fn, '.setup');
+old_setup_fn = strcat(old_fn, '.setup');        % Check all these files in the base directory before running the code
 old_x3d_fn = strcat(old_fn, '.x3d.xml');
 old_x3dgeometry_fn = strcat(old_fn, '.X3DGeometry.xml');
 old_txrx_fn = strcat(old_fn, '.txrx');
@@ -34,7 +49,7 @@ for sim_idx = 1:100
     old_txrx = fopen(old_txrx_fn);
     
     % New
-    new_dir = sprintf('../../tmp/sim_%d/', sim_idx);
+    new_dir = sprintf('../../tmp/sim_%d/', sim_idx);        % This is where the generated simulation directories are located
     mkdir(new_dir);
     new_fn = strcat(new_dir, setup_fn);
     new_setup_fn = strcat(new_fn, '.setup');
@@ -49,11 +64,12 @@ for sim_idx = 1:100
     
     %% Copy files and change geometry locations
     % Copy *.city and ground
-    source_fn = strcat(old_dir, 'empty_city.city');
+    source_fn = strcat(old_dir, 'empty_city.city');         % Building 3D models
     target_fn = strcat(new_dir, 'empty_city.city');
     copy_status_city = copyfile(source_fn, target_fn);
     
-    source_fn = strcat(old_dir, 'ground.object');
+    source_fn = strcat(old_dir, 'ground.object');           % Ground 3D models, you can also copy other fixed 3D models
+                                                            % (e.g. trees, road surfaces, etc) using the same format
     target_fn = strcat(new_dir, 'ground.object');
     copy_status_ground = copyfile(source_fn, target_fn);
     
@@ -62,8 +78,8 @@ for sim_idx = 1:100
     
     for obj_idx = 1:object_list_len
         % Copy files
-        source_fn = sprintf('%s%d.object', old_dir, object_list(obj_idx));
-        target_fn = sprintf('%svehicle_%d.object', new_dir, obj_idx);
+        source_fn = sprintf('%s%d.object', old_dir, object_list(obj_idx));      % Vehicle 3D model
+        target_fn = sprintf('%svehicle_%d.object', new_dir, obj_idx);           % Vehicle "object" in the generated simulation directory
         copy_status = copyfile(source_fn, target_fn);
         % Change geometry locations
         fprintf(' - Moving vehicle %d (out of %d)\n', obj_idx, object_list_len);
@@ -74,7 +90,7 @@ for sim_idx = 1:100
     % write *.setup
     tline = fgetl(old_setup);
     while ischar(tline)
-        if strcmp(tline, 'filename ./ground.object')
+        if strcmp(tline, 'filename ./ground.object')        % Note: change it to the last fixed 3D object in your setup file
             fprintf(new_setup, '%s\r\n', tline);
             tline = fgetl(old_setup);
             fprintf(new_setup, '%s\r\n', tline);
