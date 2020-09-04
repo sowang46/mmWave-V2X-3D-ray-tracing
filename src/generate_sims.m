@@ -1,7 +1,7 @@
 % This program generates a sequence of runnable Wireless Insite simulation 
 % directories with a given SUMO traffic pattern.
-% Prerequisite:
-%     1. A "base" Wireless Insite simulation directories with fixed 3D models
+% Prerequisites:
+%     1. A "base" Wireless Insite simulation directory with fixed 3D models
 %        (e.g. buildings, ground) and transmitters/receivers all properly 
 %        configered.
 %     2. A SUMO-generated traffic pattern. Save vehicle locations and types
